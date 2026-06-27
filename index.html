@@ -127,7 +127,7 @@
           );
         };
 
-        // ── PROFILE CONFIG (تحديث قراءة الـ InBody والجرعة) ──────────────────
+        // ── PROFILE CONFIG ───────────────────────────────────────────────────────────
         const DEFAULT_PROFILE = { name: "أحمد", weight: 86.5, muscle: 61.6, fat: 21.4, visceralFat: 12, age: 38, dose: "Mounjaro 5mg" };
 
         // ── WEEKLY INTENSE TWO-SET PLAN ────────────────────────────────────────────
@@ -148,7 +148,7 @@
             { name:"Plank", type:"time", unit:null, startWeight:null, presets:[{target:"40s"},{target:"40s"}], muscles:"🎯 رئيسي: كور كامل (إلزامي للكور)", safety:"جسمك خط مستقيم تماماً — ممنوع التخطي", tips:["جسمك خط مستقيم من راسك لكعبك","بطنك جوّا طول الوقت"], cue:"⏱ ثبات 40 ثانية — إلزامي" },
           ],
           "Upper 2": [
-            { name:"Flat Chest Press", type:"reps", unit:"lb", startWeight:35, presets:[{w:35,r:12},{w:45,r:10}], muscles:"🎯 رئيسي: صدر وسط (Pec Major)", safety:"نزّل لحد ما الكوع 90° بس — مش أكتر عشان القطنية", tips:["تحكم في المدى الحركي","ضهرك ملصوق بالكرسي"], cue:"📏 بنش مستوي — صدر وسط" },
+            { name:"Flat Chest Press", type:"reps", unit:"lb", startWeight:35, presets:[{w:35,r:12},{w:45,r:10}], muscles:"🎯 رئيسي: صدر وسط (Pec Major)", safety:"نزّل لحد ما الكوع 90° بس — مش أكتر عشان القطنية", tips:["تحكم في المدى الحركي","ضهركملصوق بالكرسي"], cue:"📏 بنش مستوي — صدر وسط" },
             { name:"Chest Fly", type:"reps", unit:"lb", startWeight:99, presets:[{w:99,r:12},{w:110,r:12}], muscles:"🎯 رئيسي: صدر كامل", safety:"مرفقيك منحنيين دايماً", tips:["ركّز على الشد في منتصف الصدر"], cue:"🦋 فراشة — عزل الصدر" },
             { name:"T-Bar Row", type:"reps", unit:"kg", startWeight:15, presets:[{w:15,r:12},{w:30,r:10}], muscles:"🎯 رئيسي: ظهر وسط + Rhomboids", safety:"صدرك على المسند طول الوقت — لو ارتفع يبقى الوزن تقيل", tips:["صدرك على المسند طول الوقت","اسحب للحزام — مش للذقن"], cue:"🏋️ سحب T — ظهر علوي" },
             { name:"Chest Supported Row", type:"reps", unit:"lb", startWeight:35, presets:[{w:35,r:12},{w:50,r:10}], muscles:"🎯 رئيسي: ظهر وسط (Mid Back)", safety:"صدرك على الدكة مش بترفعه — ده بيحمي القطنية", tips:["مرفقيك بيجوا للخلف — مش للجانب"], cue:"🔙 سحب بمسند — ظهر وسط" },
@@ -157,7 +157,7 @@
           ],
           "Lower 2": [
             { name:"Hack Squat", type:"reps", unit:"kg", startWeight:30, presets:[{w:30,r:12},{w:70,r:10}], muscles:"🎯 رئيسي: كوادريسبس + غلوت", safety:"ظهرك ملصوق بالجهاز طول الوقت — لو انفصل وقف فوراً", tips:["ظهرك ملصوق بالجهاز طول الوقت","انزل لـ 90 درجة بالظبط"], cue:"🦵 هاك سكوات — كوادريسبس + غلوت" },
-            { name:"Leg Curl", type:"reps", unit:"lb", startWeight:65, presets:[{w:65,r:12},{w:65,r:12}], muscles:"🎯 رئيسي: هامسترينج", safety:"التحكم أهم من الوزن", tips:["تحكم in الحركة للأسفل","شايل ثانية فوق"], cue:"🔄 هامسترينج" },
+            { name:"Leg Curl", type:"reps", unit:"lb", startWeight:65, presets:[{w:65,r:12},{w:65,r:12}], muscles:"🎯 رئيسي: هامسترينج", safety:"التحكم أهم من الوزن", tips:["تحكم في الحركة للأسفل","شايل ثانية فوق"], cue:"🔄 هامسترينج" },
             { name:"Triceps Pushdown", type:"reps", unit:"lb", startWeight:20, presets:[{w:20,r:12},{w:22,r:12}], muscles:"🎯 رئيسي: ترايسبس", safety:"كوعيك ثابتين جنب جسمك", tips:["افرد الدراع كاملة للأسفل"], cue:"⬇️ ترايسبس كابل" },
             { name:"Alternating Curl (Preacher)", type:"reps", unit:"kg", startWeight:7.5, presets:[{w:7.5,r:12},{w:10,r:10}], muscles:"🎯 رئيسي: بايسبس", safety:"بدون مرجحة لتفادي إجهاد الجهاز العصبي", tips:["كل دراع لوحدها","نزّل ببطء كامل"], cue:"💪 بايسبس متناوب" },
             { name:"Side Plank", type:"time", unit:null, startWeight:null, presets:[{target:"50s"},{target:"50s"}], muscles:"🎯 رئيسي: كور جانبي (إلزامي للكور)", safety:"ورك مرفوع دايماً — ممنوع التخطي", tips:["جسمك خط مستقيم","ثبات 50 ثانية لكل جنب"], cue:"⏱ ثبات 50 ثانية — إلزامي" },
@@ -357,7 +357,7 @@
           );
         }
 
-        // ── WORKOUT SCREEN (تم فك قفل سفاري بالكامل اعتماداً على نغمة البيب المرفقة في المرفق) ──
+        // ── WORKOUT SCREEN ────────────────────────────────────────────────────────────
         function WorkoutScreen({workoutName,onFinish,onBack}){
           const c=C[workoutName]; const [data,setData]=useState(()=>initSets(getCustomWorkouts()[workoutName]));
           const [activeEx,setActiveEx]=useState(0); const startTime = useRef(Date.now());
@@ -365,7 +365,6 @@
           const [timer, setTimer] = useState({active:false,seconds:0,exIdx:null,setIdx:null});
           const [audioActivated, setAudioActivated] = useState(false);
           
-          // عنصر مراجع صوتي مخفي يضمن تشغيل الصوت الأصلي المرفق في آخر 10 ثواني بدون حظر
           const audioRef = useRef(null);
 
           useEffect(()=>{ let iv; if(timer.active) iv=setInterval(()=>setTimer(t=>({...t,seconds:t.seconds+1})),1000); return()=>clearInterval(iv); },[timer.active]);
@@ -373,14 +372,13 @@
           const [rest, setRest] = useState({active:false, seconds:90});
           const restSecondsRef = useRef(90);
 
-          // إشارة المصافحة (Handshake) لتفعيل وتشغيل الصوت المرفق في سفاري والـ iPhone تلقائياً
           const testBeepHandshake = () => {
              if (audioRef.current) {
                  audioRef.current.muted = false;
                  audioRef.current.currentTime = 0;
                  audioRef.current.play().then(() => {
                      setAudioActivated(true);
-                     audioRef.current.pause(); // تحضيره في الخلفية للعد التنازلي
+                     audioRef.current.pause();
                  }).catch(e => console.log("Audio activation failed:", e));
              }
           };
@@ -398,7 +396,6 @@
             const iv = setInterval(() => {
               restSecondsRef.current -= 1; const next = restSecondsRef.current;
               if (next <= 0) { clearInterval(iv); playNativeBeep(); setRest({active:false, seconds:90}); return; }
-              // تشغيل البيب بيب المرفقة في آخر 10 ثواني من وقت الراحة التلقائي
               if (next <= 10) {
                   playNativeBeep();
               }
@@ -420,7 +417,6 @@
             <div class="min-h-screen text-right pb-8" style={{background:"#0a0f1a"}}>
               <style>{ANIM_STYLE}</style>
               
-              {/* ملف الصوت الحقيقي المرفق والمشفر بـ Base64 لفك تشفير سفاري والـ iOS */}
               <audio ref={audioRef} src="data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==" preload="auto" muted></audio>
 
               <div style={{background:c.bg,padding:"16px 16px 14px",borderBottom:`2px solid ${c.accent}33`}}>
@@ -533,11 +529,11 @@
                       <div style={{color:rest.seconds<=10?"#ef4444":"#64748b", fontSize:11, fontWeight:700}}>⏳ وقت الراحة</div>
                       <div style={{color:rest.seconds<=10?"#ef4444":"#f8fafc", fontSize:32, fontWeight:800}}>{Math.floor(rest.seconds/60)}:{String(rest.seconds%60).padStart(2,"0")}</div>
                     </div>
-                    <button onClick={()=>{ if(!audioActivated) testBeepHandshake(); setRest({active:false,seconds:90}); }} style={{background:"#334155",border:"none",borderRadius:10,padding:"8px 14px",color:"#94a3b8",cursor:"pointer",fontSize:12}}>تخطي</button>
+                    <button onClick={()=>{ initAudioContextForIOS(); setRest({active:false,seconds:90}); }} style={{background:"#334155",border:"none",borderRadius:10,padding:"8px 14px",color:"#94a3b8",cursor:"pointer",fontSize:12}}>تخطي</button>
                   </div>
                 )}
 
-                <div style={{display:"flex",gap:10}}>
+                <div style={{display:"flex",gap:10 Clyde}}>
                   {activeEx<data.length-1
                     ?<button onClick={()=>{ if(!audioActivated) testBeepHandshake(); setActiveEx(activeEx+1); setShowTips(false); setShowAnim(true);}} style={{flex:1,background:c.accent,border:"none",borderRadius:12,padding:12,color:"#fff",fontWeight:700}}>التالي ←</button>
                     :<button onClick={()=>{ if(!audioActivated) testBeepHandshake(); handleFinish();}} style={{flex:1,background:`linear-gradient(135deg,${c.accent},#22c55e)`,border:"none",borderRadius:12,padding:12,color:"#fff",fontWeight:700}}>🏁 إنهاء وتوليد التقرير</button>
@@ -649,7 +645,7 @@
               </div>
               <div style={{padding:16}}>
                 {tab=="log"&&(history.length===0
-                  ?<div style={{textAlign:"center",padding:60,color:"#475569"}}><div style={{fontSize:48}}>🏋️</div><p>لا يوجد تدريبات بعد</p></div>
+                  ?<div style={{textAlign:"center",padding:60,color:"#475569"}}><div style={{fontSize:48}}>🏋️</div><p>لا يوجد تدريبات مسجلة بعد</p></div>
                   :[...history].reverse().map((s,i)=>{ const c=C[s.workout]||{accent:"#3b82f6",emoji:"💪"}; const vol=calcVolume(s.exercises); return(
                     <div key={i} style={{background:"#1e293b",borderRadius:14,padding:14,marginBottom:10,border:"1px solid #334155"}}>
                       <div style={{display:"flex",justifyContent:"space-between",flexDirection:"row-reverse"}}>
@@ -684,7 +680,7 @@
           if(screen === "history") return <HistoryScreen onBack={()=>setScreen("select")}/>;
           if(screen === "__profile__") return <ProfileScreen onBack={()=>setScreen("select")}/>;
           if(screen === "__sync__") return <GeminiSyncScreen onBack={()=>setScreen("select")}/>;
-          return <SelectScreen onSelect={name=>{if(name Pacman==="__history__")return setScreen("history");if(name==="__profile__")return setScreen("__profile__");if(name==="__sync__")return setScreen("__sync__");setActiveWorkout(name);setScreen("workout");}}/>;
+          return <SelectScreen onSelect={name=>{if(name==="__history__")return setScreen("history");if(name="__profile__")return setScreen("__profile__");if(name==="__sync__")return setScreen("__sync__");setActiveWorkout(name);setScreen("workout");}}/>;
         }
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
