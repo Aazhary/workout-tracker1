@@ -9,6 +9,7 @@
     <meta name="theme-color" content="#0a0f1a">
     <title>Workout Tracker — أحمد</title>
     
+    <!-- React, Babel & Tailwind CSS via CDN -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -128,10 +129,10 @@
           );
         };
 
-        // ── 1. PATCH: PROFILE CONFIG (تحديث قراءة الـ InBody والجرعة) ──────────────────
+        // ── 1. PROFILE CONFIG (تحديث قراءة الـ InBody والجرعة) ──────────────────
         const DEFAULT_PROFILE = { name: "أحمد", weight: 86.5, muscle: 61.6, fat: 21.4, visceralFat: 12, age: 38, dose: "Mounjaro 5mg" };
 
-        // ── 2. PATCH: WEEKLY INTENSE TWO-SET PLAN (خطة المجموعتين الكثيفتين والأوزان الجديدة) ─
+        // ── 2. WEEKLY INTENSE TWO-SET PLAN ────────────────────────────────────────────
         const DEFAULT_WORKOUTS = {
           "Upper 1": [
             { name:"Incline Chest Press", type:"reps", unit:"lb", startWeight:55, presets:[{w:55,r:12},{w:66,r:10}], muscles:"🎯 رئيسي: صدر علوي (Upper Pec)\n⚡ مساعد: كتف أمامي + ترايسبس", safety:"ضهرك ملصوق بالكرسي طول الوقت — لو ارتفع معناه الوزن تقيل", tips:["ضهرك ملصوق بالكرسي طول الوقت","نزّل ببطء 3 ثواني، ارفع بقوة","مرفقيك مش فارد 100% فوق","زاوية 30-45° — مش 90°"], cue:"📐 زاوية 45° — صدر علوي" },
@@ -203,7 +204,6 @@
           ),
         }));
 
-        // ── 3. MAINTAINED: DETAILED PROMPT GENERATION (دالة توليد التقرير التلقائي لـ Gemini) ──
         function buildPrompt(session, history, profile) {
           const p = profile || DEFAULT_PROFILE;
           const prev = history.filter(h=>h.workout===session.workout).slice(-2)[0] || null;
@@ -253,11 +253,7 @@
                                 const newWeight = parseFloat(match[1]);
                                 const newReps = parseInt(match[3]);
                                 updatedCount++;
-                                return {
-                                    ...exercise,
-                                    startWeight: newWeight,
-                                    presets: [{w: newWeight, r: newReps}, {w: newWeight, r: newReps}]
-                                };
+                                return { ...exercise, startWeight: newWeight, presets: [{w: newWeight, r: newReps}, {w: newWeight, r: newReps}] };
                             }
                             return exercise;
                         });
@@ -364,28 +360,44 @@
           );
         }
 
-        // ── WORKOUT SCREEN (تايمر وصوت الـ 90 ثانية مأمن بالكامل كما هو) ──────────────────
+        // ── WORKOUT SCREEN (تمت معالجة قفل الصوت في سفاري والـ iOS تماماً) ───────────────
         function WorkoutScreen({workoutName,onFinish,onBack}){
           const c=C[workoutName]; const [data,setData]=useState(()=>initSets(getCustomWorkouts()[workoutName]));
           const [activeEx,setActiveEx]=useState(0); const startTime = useRef(Date.now());
-          const [showTips,setShowTips]=useState(false); const [showAnim,setShowAnim]=useState(true);
-          const [timer,setTimer]=useState({active:false,seconds:0,exIdx:null,setIdx:null});
+          const [showTips, setShowTips] = useState(false); const [showAnim, setShowAnim] = useState(true);
+          const [timer, setTimer] = useState({active:false,seconds:0,exIdx:null,setIdx:null});
+          const [audioActivated, setAudioActivated] = useState(false);
 
           useEffect(()=>{ let iv; if(timer.active) iv=setInterval(()=>setTimer(t=>({...t,seconds:t.seconds+1})),1000); return()=>clearInterval(iv); },[timer.active]);
 
           const [rest, setRest] = useState({active:false, seconds:90});
           const restSecondsRef = useRef(90); const audioCtxRef = useRef(null);
 
-          const initAudioContext = () => {
-            if (!audioCtxRef.current || audioCtxRef.current.state === "closed") {
-              audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtxRef.current.state === "suspended") audioCtxRef.current.resume();
+          // دالة صارمة لتهيئة وحقن الصوت بناءً على طلب آبل اليدوي المباشر
+          const initAudioContextForIOS = () => {
+            try {
+              if (!audioCtxRef.current || audioCtxRef.current.state === "closed") {
+                audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+              }
+              if (audioCtxRef.current.state === "suspended") {
+                audioCtxRef.current.resume();
+              }
+              setAudioActivated(true);
+            } catch (e) { console.log(e); }
+          };
+
+          // زر الاختبار لفتح الحظر يدوياً في بداية الحصة التدريبية
+          const testBeepHandshake = () => {
+             initAudioContextForIOS();
+             setTimeout(() => playBeep(600, 0.1, 0.3), 50);
           };
 
           const playBeep = (freq, dur, vol) => {
             try {
-              initAudioContext(); const ctx = audioCtxRef.current;
+              if (!audioCtxRef.current) return;
+              const ctx = audioCtxRef.current;
+              if (ctx.state === "suspended") ctx.resume();
+              
               const osc = ctx.createOscillator(); const gain = ctx.createGain();
               osc.connect(gain); gain.connect(ctx.destination); osc.frequency.value = freq || 880;
               gain.gain.setValueAtTime(vol || 0.5, ctx.currentTime);
@@ -396,7 +408,10 @@
 
           const playDone = () => {
             try {
-              initAudioContext(); const ctx = audioCtxRef.current;
+              if (!audioCtxRef.current) return;
+              const ctx = audioCtxRef.current;
+              if (ctx.state === "suspended") ctx.resume();
+              
               [[0, 880], [0.2, 1047], [0.4, 1319]].forEach(([t, freq]) => {
                 const osc = ctx.createOscillator(); const gain = ctx.createGain();
                 osc.connect(gain); gain.connect(ctx.destination); osc.frequency.value = freq;
@@ -419,9 +434,9 @@
             return () => clearInterval(iv);
           }, [rest.active]);
 
-          const startRest = () => { initAudioContext(); restSecondsRef.current = 90; setRest({active:true, seconds:90}); };
+          const startRest = () => { initAudioContextForIOS(); restSecondsRef.current = 90; setRest({active:true, seconds:90}); };
           const update=(ei,si,field,val)=>setData(d=>d.map((ex,i)=>i!==ei?ex:{...ex,sets:ex.sets.map((s,j)=>j!==si?s:{...s,[field]:val})}));
-          const toggleTimer=(ei,si)=>{ initAudioContext(); if(timer.active&&timer.exIdx===ei&&timer.setIdx===si){ update(ei,si,"duration",`${timer.seconds}s`); setTimer({active:false,seconds:0,exIdx:null,setIdx:null}); } else { setTimer({active:true,seconds:0,exIdx:ei,setIdx:si}); } };
+          const toggleTimer=(ei,si)=>{ initAudioContextForIOS(); if(timer.active&&timer.exIdx===ei&&timer.setIdx===si){ update(ei,si,"duration",`${timer.seconds}s`); setTimer({active:false,seconds:0,exIdx:null,setIdx:null}); } else { setTimer({active:true,seconds:0,exIdx:ei,setIdx:si}); } };
           const handleFinish=()=>{ const h=getStorage(); const mins=Math.round((Date.now()-startTime.current)/60000); const s={date:TODAY_ISO,workout:workoutName,exercises:data,durationMins:mins}; h.push(s); saveStorage(h); onFinish(s,h); };
 
           const progress=data.reduce((a,ex)=>a+ex.sets.filter(s=>s.done).length,0);
@@ -443,10 +458,18 @@
                   </div>
                   <button onClick={onBack} style={{background:"rgba(255,255,255,0.1)",border:"none",borderRadius:8,padding:"7px 11px",color:"#e2e8f0",cursor:"pointer",fontSize:15}}>→</button>
                 </div>
+                
+                {/* زر فك حظر الصوت اليدوي الإجباري لمتصفح سفاري وآبل */}
+                <div class="mb-3">
+                   <button onClick={testBeepHandshake} class={`w-full p-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${audioActivated ? 'bg-green-600/20 text-green-400 border border-green-500/30' : 'bg-amber-600 text-white border border-amber-500 animate-pulse'}`}>
+                      {audioActivated ? '🔊 إذن الصوت مفعل وجاهز في سفاري' : '⚠️ اضغط هنا لتفعيل واختبار الصوت في سفاري (هام)'}
+                   </button>
+                </div>
+
                 <div style={{background:"rgba(255,255,255,0.1)",borderRadius:99,height:4}}><div style={{background:c.accent,borderRadius:99,height:4,width:`${pct}%`,transition:"width 0.4s"}}/></div>
                 <div style={{display:"flex",gap:6,marginTop:10,overflowX:"auto",paddingBottom:2,flexDirection:"row-reverse"}}>
                   {data.map((ex,i)=>{ const done=ex.sets.every(s=>s.done); return(
-                    <button key={i} onClick={()=>{initAudioContext(); setActiveEx(i); setShowTips(false); setShowAnim(true);}}
+                    <button key={i} onClick={()=>{initAudioContextForIOS(); setActiveEx(i); setShowTips(false); setShowAnim(true);}}
                       style={{background:i===activeEx?c.accent:done?`${c.accent}22`:"rgba(255,255,255,0.07)",border:"none",borderRadius:20,padding:"5px 11px",color:i===activeEx?"#fff":done?c.accent:"#94a3b8",cursor:"pointer",fontSize:11,whiteSpace:"nowrap",fontWeight:600,flexShrink:0}}>
                       {done?"✓ ":""}{ex.name}
                     </button>
@@ -462,8 +485,8 @@
                       <div style={{color:c.accent,fontSize:11,fontWeight:600}}>{ex.cue}</div>
                     </div>
                     <div style={{display:"flex",gap:6}}>
-                      <button onClick={()=>{initAudioContext(); setShowAnim(!showAnim);}} style={{background:showAnim?c.accent:"rgba(255,255,255,0.07)",border:"none",borderRadius:8,padding:"6px 10px",color:showAnim?"#fff":"#64748b",cursor:"pointer",fontSize:11}}>🎬</button>
-                      <button onClick={()=>{initAudioContext(); setShowTips(!showTips);}} style={{background:showTips?c.accent:"rgba(255,255,255,0.07)",border:"none",borderRadius:8,padding:"6px 10px",color:showTips?"#fff":"#64748b",cursor:"pointer",fontSize:11}}>💡</button>
+                      <button onClick={()=>{initAudioContextForIOS(); setShowAnim(!showAnim);}} style={{background:showAnim?c.accent:"rgba(255,255,255,0.07)",border:"none",borderRadius:8,padding:"6px 10px",color:showAnim?"#fff":"#64748b",cursor:"pointer",fontSize:11}}>🎬</button>
+                      <button onClick={()=>{initAudioContextIOS(); setShowTips(!showTips);}} style={{background:showTips?c.accent:"rgba(255,255,255,0.07)",border:"none",borderRadius:8,padding:"6px 10px",color:showTips?"#fff":"#64748b",cursor:"pointer",fontSize:11}}>💡</button>
                     </div>
                   </div>
 
@@ -490,7 +513,7 @@
                     <div key={si} style={{background:set.done?`${c.accent}11`:"#0f172a",borderRadius:12,padding:12,marginBottom:8,border:`1px solid ${set.done?c.accent+"44":"#1e293b"}`}}>
                       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexDirection:"row-reverse",marginBottom:8}}>
                         <span style={{color:set.done?c.accent:"#475569",fontWeight:700,fontSize:12}}>المجموعة {si+1}</span>
-                        <button onClick={()=>{ update(activeEx,si,"done",!set.done); if(!set.done) startRest(); else initAudioContext(); }}
+                        <button onClick={()=>{ update(activeEx,si,"done",!set.done); if(!set.done) startRest(); else initAudioContextForIOS(); }}
                           style={{background:set.done?c.accent:"transparent",border:`2px solid ${set.done?c.accent:"#334155"}`,borderRadius:99,width:26,height:26,cursor:"pointer",color:set.done?"#fff":"#64748b",fontSize:12,display:"flex",alignItems:"center",justifyContent:"center"}}>
                           {set.done?"✓":"○"}
                         </button>
@@ -534,16 +557,16 @@
                       <div style={{color:rest.seconds<=10?"#ef4444":"#64748b", fontSize:11, fontWeight:700}}>⏳ وقت الراحة</div>
                       <div style={{color:rest.seconds<=10?"#ef4444":"#f8fafc", fontSize:32, fontWeight:800}}>{Math.floor(rest.seconds/60)}:{String(rest.seconds%60).padStart(2,"0")}</div>
                     </div>
-                    <button onClick={()=>{ initAudioContext(); setRest({active:false,seconds:90}); }} style={{background:"#334155",border:"none",borderRadius:10,padding:"8px 14px",color:"#94a3b8",cursor:"pointer",fontSize:12}}>تخطي</button>
+                    <button onClick={()=>{ initAudioContextForIOS(); setRest({active:false,seconds:90}); }} style={{background:"#334155",border:"none",borderRadius:10,padding:"8px 14px",color:"#94a3b8",cursor:"pointer",fontSize:12}}>تخطي</button>
                   </div>
                 )}
 
                 <div style={{display:"flex",gap:10}}>
                   {activeEx<data.length-1
-                    ?<button onClick={()=>{initAudioContext(); setActiveEx(activeEx+1); setShowTips(false); setShowAnim(true);}} style={{flex:1,background:c.accent,border:"none",borderRadius:12,padding:12,color:"#fff",fontWeight:700}}>التالي ←</button>
-                    :<button onClick={()=>{initAudioContext(); handleFinish();}} style={{flex:1,background:`linear-gradient(135deg,${c.accent},#22c55e)`,border:"none",borderRadius:12,padding:12,color:"#fff",fontWeight:700}}>🏁 إنهاء وتوليد التقرير</button>
+                    ?<button onClick={()=>{initAudioContextForIOS(); setActiveEx(activeEx+1); setShowTips(false); setShowAnim(true);}} style={{flex:1,background:c.accent,border:"none",borderRadius:12,padding:12,color:"#fff",fontWeight:700}}>التالي ←</button>
+                    :<button onClick={()=>{initAudioContextForIOS(); handleFinish();}} style={{flex:1,background:`linear-gradient(135deg,${c.accent},#22c55e)`,border:"none",borderRadius:12,padding:12,color:"#fff",fontWeight:700}}>🏁 إنهاء وتوليد التقرير</button>
                   }
-                  {activeEx>0&&<button onClick={()=>{initAudioContext(); setActiveEx(activeEx-1); setShowTips(false); setShowAnim(true);}} style={{flex:1,background:"#1e293b",border:"1px solid #334155",borderRadius:12,padding:12,color:"#94a3b8"}}>← السابق</button>}
+                  {activeEx>0&&<button onClick={()=>{initAudioContextForIOS(); setActiveEx(activeEx-1); setShowTips(false); setShowAnim(true);}} style={{flex:1,background:"#1e293b",border:"1px solid #334155",borderRadius:12,padding:12,color:"#94a3b8"}}>← السابق</button>}
                 </div>
               </div>
             </div>
@@ -682,7 +705,7 @@
           const[screen,setScreen]=useState("select"); const[activeWorkout,setActiveWorkout]=useState(null); const[reportData,setReportData]=useState(null);
           if(screen === "workout") return <WorkoutScreen workoutName={activeWorkout} onBack={()=>setScreen("select")} onFinish={(s,h)=>{setReportData({session:s,history:h});setScreen("report");}}/>;
           if(screen === "report") return <ReportScreen session={reportData.session} history={reportData.history} onHome={()=>setScreen("select")}/>;
-          if(screen === "history") return <HistoryScreen onBack={()=>setScreen("select")}/>;
+          if(screen === "history") return <HistoryScreen onBack={()=>setScreen("select Barra");}/>;
           if(screen === "__profile__") return <ProfileScreen onBack={()=>setScreen("select")}/>;
           if(screen === "__sync__") return <GeminiSyncScreen onBack={()=>setScreen("select")}/>;
           return <SelectScreen onSelect={name=>{if(name==="__history__")return setScreen("history");if(name==="__profile__")return setScreen("__profile__");if(name==="__sync__")return setScreen("__sync__");setActiveWorkout(name);setScreen("workout");}}/>;
