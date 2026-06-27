@@ -84,8 +84,6 @@
                 <g style={{animation:"chinUp 2s ease-in-out infinite"}}>
                   <circle cx="55" cy="35" r="9" fill={body}/>
                   <line x1="55" y1="44" x2="55" y2="68" stroke={body} strokeWidth="4" strokeLinecap="round"/>
-                  <line x1="42" y1="20" x2="38" y2="11" stroke={body} strokeWidth="3.5" strokeLinecap="round"/>
-                  <line x1="68" y1="20" x2="72" y2="11" stroke={body} strokeWidth="3.5" strokeLinecap="round"/>
                 </g>
               </svg>
             ),
@@ -128,10 +126,10 @@
           );
         };
 
-        // ── 1. PROFILE CONFIG (تحديث قراءة الـ InBody والجرعة) ──────────────────
+        // ── PROFILE CONFIG ───────────────────────────────────────────────────────────
         const DEFAULT_PROFILE = { name: "أحمد", weight: 86.5, muscle: 61.6, fat: 21.4, visceralFat: 12, age: 38, dose: "Mounjaro 5mg" };
 
-        // ── 2. WEEKLY INTENSE TWO-SET PLAN ────────────────────────────────────────────
+        // ── WEEKLY INTENSE TWO-SET PLAN ────────────────────────────────────────────
         const DEFAULT_WORKOUTS = {
           "Upper 1": [
             { name:"Incline Chest Press", type:"reps", unit:"lb", startWeight:55, presets:[{w:55,r:12},{w:66,r:10}], muscles:"🎯 رئيسي: صدر علوي (Upper Pec)\n⚡ مساعد: كتف أمامي + ترايسبس", safety:"ضهرك ملصوق بالكرسي طول الوقت — لو ارتفع معناه الوزن تقيل", tips:["ضهرك ملصوق بالكرسي طول الوقت","نزّل ببطء 3 ثواني، ارفع بقوة","مرفقيك مش فارد 100% فوق","زاوية 30-45° — مش 90°"], cue:"📐 زاوية 45° — صدر علوي" },
@@ -358,7 +356,7 @@
           );
         }
 
-        // ── WORKOUT SCREEN ────────────────────────────────────────────────────────────
+        // ── WORKOUT SCREEN (تمت معالجة قفل الصوت بنظام الهزة والـ Oscillator لـ iOS) ───────
         function WorkoutScreen({workoutName,onFinish,onBack}){
           const c=C[workoutName]; const [data,setData]=useState(()=>initSets(getCustomWorkouts()[workoutName]));
           const [activeEx,setActiveEx]=useState(0); const startTime = useRef(Date.now());
@@ -376,7 +374,9 @@
               if (!audioCtxRef.current || audioCtxRef.current.state === "closed") {
                 audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
               }
-              if (audioCtxRef.current.state === "suspended") audioCtxRef.current.resume();
+              if (audioCtxRef.current.state === "suspended") {
+                audioCtxRef.current.resume();
+              }
               setAudioActivated(true);
             } catch (e) { console.log(e); }
           };
@@ -391,6 +391,7 @@
               if (!audioCtxRef.current) return;
               const ctx = audioCtxRef.current;
               if (ctx.state === "suspended") ctx.resume();
+              
               const osc = ctx.createOscillator(); const gain = ctx.createGain();
               osc.connect(gain); gain.connect(ctx.destination); osc.frequency.value = freq || 880;
               gain.gain.setValueAtTime(vol || 0.5, ctx.currentTime);
@@ -404,6 +405,7 @@
               if (!audioCtxRef.current) return;
               const ctx = audioCtxRef.current;
               if (ctx.state === "suspended") ctx.resume();
+              
               [[0, 880], [0.2, 1047], [0.4, 1319]].forEach(([t, freq]) => {
                 const osc = ctx.createOscillator(); const gain = ctx.createGain();
                 osc.connect(gain); gain.connect(ctx.destination); osc.frequency.value = freq;
@@ -441,7 +443,7 @@
               <div style={{background:c.bg,padding:"16px 16px 14px",borderBottom:`2px solid ${c.accent}33`}}>
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
                   <div style={{textAlign:"left"}}>
-                    <div style={{color:c.accent,fontWeight:800,fontSize:20}}>{pct}%</div>
+                    <div style={{color:"#fff",fontWeight:800,fontSize:20}}>{pct}%</div>
                     <div style={{color:"#64748b",fontSize:11}}>{progress}/{total}</div>
                   </div>
                   <div style={{flex:1, paddingRight: 10}}>
@@ -476,7 +478,7 @@
                       <div style={{color:c.accent,fontSize:11,fontWeight:600}}>{ex.cue}</div>
                     </div>
                     <div style={{display:"flex",gap:6}}>
-                      <button onClick={()=>{initAudioContextForIOS(); setShowAnim(!showAnim);}} style={{background:showAnim?c.accent:"rgba(255,255,255,0.07)",border:"none",borderRadius:8,padding:"6px 10px",color:"#showAnim"?"#fff":"#64748b",cursor:"pointer",fontSize:11}}>🎬</button>
+                      <button onClick={()=>{initAudioContextForIOS(); setShowAnim(!showAnim);}} style={{background:showAnim?c.accent:"rgba(255,255,255,0.07)",border:"none",borderRadius:8,padding:"6px 10px",color:showAnim?"#fff":"#64748b",cursor:"pointer",fontSize:11}}>🎬</button>
                       <button onClick={()=>{initAudioContextForIOS(); setShowTips(!showTips);}} style={{background:showTips?c.accent:"rgba(255,255,255,0.07)",border:"none",borderRadius:8,padding:"6px 10px",color:showTips?"#fff":"#64748b",cursor:"pointer",fontSize:11}}>💡</button>
                     </div>
                   </div>
